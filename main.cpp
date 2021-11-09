@@ -144,7 +144,7 @@ void loadBullet(){
 void moveBullet(){
     for(int i=0;i<10;i++){
         if(bullets[i].isAlive){
-            bullets[i].y+=7;
+            bullets[i].y+=10;
         }
         if(bullets[i].y>500)bullets[i].isAlive=false;
     }
@@ -265,7 +265,7 @@ void keyboard(int key, int x, int y){
 
 
 void initShipPosition(){
-    ship.speed=20;
+    ship.speed=15;
     ship.shipX1=centerX; ship.shipX2=centerX+50; ship.shipX3=centerX+25; ship.shipX4=centerX-25; ship.shipX5=centerX-50;
     ship.shipY1=centerY+100;ship.shipY2=centerY;ship.shipY3=centerY+25;ship.shipY4=centerY+25;ship.shipY5=centerY;
 }
