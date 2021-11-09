@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1636478690 source:h:\0.pust\4 2\graphics\game\end_game\main.cpp
+	<bits/stdc++.h>
+	<windows.h>
+	<stdio.h>
+	<iostream>
+	<GL/glut.h>
+	<string>
+	<sstream>
+	<GL/gl.h>
+
+1426328128 c:\program files\codeblocks\mingw\include\gl\glut.h
+	"freeglut_std.h"
+
+1426328128 c:\program files\codeblocks\mingw\include\gl\freeglut_std.h
+	<windows.h>
+	<EGL/egl.h>
+	<GLES/gl.h>
+	<GLES2/gl2.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+

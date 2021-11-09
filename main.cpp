@@ -20,10 +20,10 @@ float colors[10][3] ={{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
 float sWidth=600.0,sHeight=600.0,scaleX=500.0,scaleY=500.0,centerX,centerY;
 float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
 float enemySpeed=0.1;
-bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false;
+bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,isWin=false;
 int roundScore=0;
 struct Ship{
-    float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
+    float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5,speed;
 };
 Ship ship;
 
@@ -40,26 +40,47 @@ struct Enemy{
 };
 Enemy enemy [100];
 
-void printScore(int score){
+void winningText(int flg=0){
+    if(!flg)return;
+    glColor3f (1.0, 0.0, 0.0);
+    glRasterPos2f(-250,0);
+    string str="Congratulations!!! LEVEL 1 COMPLETE!!";
+    int len=str.length();
+    cout<<str<<endl;
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+}
 
+void printScore(int score){
+    glColor3f(0.0, 1.0, 0.0);
+    glRasterPos2f(scaleX-160,scaleY-70);
     stringstream strstrm;
     strstrm << score;
     string str = "Score: "+strstrm.str();
-    int len = str.length();
-    for(int i = 0; i < len; i++){
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, str[i]);
-    }
-}
-void winningText(){
-    glColor3f (1.0, 0.0, 0.0);
-    glRasterPos2f(50.0f,50.0f);
-    string str="LEVEL 1 COMPLETE!!";
     int len=str.length();
     for(int i=0;i<len;i++){
-        glutBitmapCharacter(GLUT_BITMAP_8_BY_13,str[i]);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
-    cout<<str<<endl;
+    if(score==100){
+        glutIdleFunc(NULL);
+        winningText(1);
+        isWin=true;
+    }
 }
+
+void deadText(int flg=0){
+    if(!flg)return;
+    glColor3f (1.0, 0.0, 0.0);
+    glRasterPos2f(-250,0);
+    string str="Game Over!!! Try Again";
+    int len=str.length();
+    cout<<str<<endl;
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+}
+
 
 void myDisplay(void){
     glClear (GL_COLOR_BUFFER_BIT);
@@ -97,9 +118,11 @@ void myDisplay(void){
             glVertex3f(enemy[i].X4,enemy[i].Y4,0.0);
         }
     glEnd();
+    printScore(roundScore);
+    winningText(isWin==true);
+    deadText(isGameOver==true);
     glutSwapBuffers();
 }
-
 
 void loadBullet(){
     int id=-1;
@@ -139,10 +162,14 @@ void moveEnemy(){
 void gameOver(){
     for(int i=0;i<100;i++){
         if(enemy[i].Y3<=-500){
-            isGameOver=true;return;
+            isGameOver=true;
+            break;
         }
     }
-    if(roundScore==100)isGameOver=true;
+    if(isGameOver){
+        glutIdleFunc(NULL);
+        deadText(1);
+    }
 }
 
 void updateScore(int score){
@@ -151,10 +178,6 @@ void updateScore(int score){
         cout<<roundScore<<endl;
     }
     printScore(roundScore);
-    if(roundScore==100){
-        //isGameOver=true;
-        winningText();
-    }
 }
 
 void checkCollision(){
@@ -182,16 +205,13 @@ void startMovement(){
     gameOver();
     if(isMoveBullet)moveBullet();
     if(isMoveEnemy)moveEnemy();
-    if(isGameOver){
-        glutIdleFunc(NULL);return;
-    }
 }
 
 
 void movement(){
     glutIdleFunc(NULL);
+    if(isGameOver||isWin)return;
     glutIdleFunc(startMovement);
-    if(isGameOver)return;
 }
 
 void displayInfo(){
@@ -201,7 +221,7 @@ void displayInfo(){
 }
 
 void charKeyboard(unsigned char key, int x, int y){
-    if(isGameOver)return;
+    if(isGameOver||isWin)return;
     switch(key){
         case 32:
             loadBullet();
@@ -222,19 +242,19 @@ void charKeyboard(unsigned char key, int x, int y){
 
 
 void keyboard(int key, int x, int y){
-    if(isGameOver)return;
+    if(isGameOver||isWin)return;
     switch(key){
         case GLUT_KEY_LEFT:
-            ship.shipX1 -= 15;ship.shipX2 -= 15;ship.shipX3 -= 15;ship.shipX4 -= 15;ship.shipX5 -= 15;
+            ship.shipX1 -= ship.speed;ship.shipX2 -= ship.speed;ship.shipX3 -= ship.speed;ship.shipX4 -= ship.speed;ship.shipX5 -= ship.speed;
             if(ship.shipX1 < -500){
-                ship.shipX1 += 15;ship.shipX2 += 15;ship.shipX3 += 15;ship.shipX4 += 15;ship.shipX5 += 15;
+                ship.shipX1 += ship.speed;ship.shipX2 += ship.speed;ship.shipX3 += ship.speed;ship.shipX4 += ship.speed;ship.shipX5 += ship.speed;
             }
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT:
-            ship.shipX1 += 15;ship.shipX2 += 15;ship.shipX3 += 15;ship.shipX4 += 15;ship.shipX5 += 15;
+            ship.shipX1 += ship.speed;ship.shipX2 += ship.speed;ship.shipX3 += ship.speed;ship.shipX4 += ship.speed;ship.shipX5 += ship.speed;
             if(ship.shipX1 > 500){
-                ship.shipX1 -= 15;ship.shipX2 -= 15;ship.shipX3 -= 15;ship.shipX4 -= 15;ship.shipX5 -= 15;
+                ship.shipX1 -= ship.speed;ship.shipX2 -= ship.speed;ship.shipX3 -= ship.speed;ship.shipX4 -= ship.speed;ship.shipX5 -= ship.speed;
             }
             glutPostRedisplay();
             break;
@@ -245,6 +265,7 @@ void keyboard(int key, int x, int y){
 
 
 void initShipPosition(){
+    ship.speed=20;
     ship.shipX1=centerX; ship.shipX2=centerX+50; ship.shipX3=centerX+25; ship.shipX4=centerX-25; ship.shipX5=centerX-50;
     ship.shipY1=centerY+100;ship.shipY2=centerY;ship.shipY3=centerY+25;ship.shipY4=centerY+25;ship.shipY5=centerY;
 }
