@@ -296,11 +296,6 @@ void init(void){
     centerX=0;centerY=-scaleY+20;
     initShipPosition();
     initPosition();
-
-    //glMatrixMode(GL_PROJECTION);
-    //glMatrixMode(GL_MODELVIEW);
-    //glLoadIdentity();
-
 }
 
 int main(int argc, char** argv){
