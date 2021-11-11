@@ -21,11 +21,19 @@ float sWidth=600.0,sHeight=600.0,scaleX=500.0,scaleY=500.0,centerX,centerY;
 float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
 float enemySpeed=0.1;
 bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,isWin=false;
-int roundScore=0;
+int roundScore=0,currentLevelIndex;
 struct Ship{
     float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5,speed;
 };
 Ship ship;
+
+struct Level{
+    int noOfEnemies,remainingEnemies;
+    float enemySpeed;
+    int levelNo;
+};
+
+Level levels[10],currentLevel;
 
 struct Bullet{
     float x;
@@ -52,22 +60,81 @@ void winningText(int flg=0){
     }
 }
 
+
+void initLevels(){
+    levels[0].noOfEnemies = 2;
+    levels[0].enemySpeed = 0.5;
+    levels[0].levelNo = 1;
+    levels[1].noOfEnemies = 3;
+    levels[1].enemySpeed = 1;
+    levels[1].levelNo = 2;
+    levels[2].noOfEnemies = 5;
+    levels[2].enemySpeed = 1.5;
+    levels[2].levelNo = 3;
+
+    levels[3].noOfEnemies = 6;
+    levels[3].enemySpeed = 2.0;
+
+    levels[4].noOfEnemies = 7;
+    levels[4].enemySpeed = 2.5;
+
+    levels[5].noOfEnemies = 8;
+    levels[5].enemySpeed = 3;
+
+    levels[6].noOfEnemies = 10;
+    levels[6].enemySpeed = 3.75;
+
+    currentLevelIndex = 0;
+
+    currentLevel = levels[currentLevelIndex];
+    currentLevel.remainingEnemies = currentLevel.noOfEnemies;
+}
+
+
+void levelUp(){
+    winningText(1);
+    currentLevelIndex++;
+    currentLevel = levels[currentLevelIndex];
+    currentLevel.remainingEnemies = currentLevel.noOfEnemies;
+    currentLevel.levelNo = currentLevelIndex+1;
+}
+
 void printScore(int score){
     glColor3f(0.0, 1.0, 0.0);
     glRasterPos2f(scaleX-160,scaleY-70);
-    stringstream strstrm;
+    stringstream strstrm,strstrm2,strm3;
     strstrm << score;
+    strstrm2 << currentLevel.levelNo;
+    strm3 << currentLevel.remainingEnemies;
     string str = "Score: "+strstrm.str();
+    string levelString = "Level : "+strstrm2.str();
+    string enemyInfo =  "\nEnemy Left :"+strm3.str();
+
     int len=str.length();
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
+    glRasterPos2f(-scaleX+10,scaleY-70);
+    len=levelString.length();
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,levelString[i]);
+    }
+
+    glRasterPos2f(-scaleX+10.
+                  ,scaleY-100);
+    len=enemyInfo.length();
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,enemyInfo[i]);
+    }
+
+    //glutBitmapString(GLUT_BITMAP_HELVETICA_18,"Fuck you glut");
     if(score==100){
         glutIdleFunc(NULL);
         winningText(1);
         isWin=true;
     }
 }
+
 
 void deadText(int flg=0){
     if(!flg)return;
@@ -154,7 +221,10 @@ void moveBullet(){
 void moveEnemy(){
     for(int i=0;i<100;i++){
         if(!enemy[i].isAlive)continue;
-        enemy[i].Y1-=enemySpeed;enemy[i].Y2-=enemySpeed;enemy[i].Y3-=enemySpeed;enemy[i].Y4-=enemySpeed;
+        enemy[i].Y1-=currentLevel.enemySpeed;
+        enemy[i].Y2-=currentLevel.enemySpeed;
+        enemy[i].Y3-=currentLevel.enemySpeed;
+        enemy[i].Y4-=currentLevel.enemySpeed;
     }
     glutPostRedisplay();
 }
@@ -191,6 +261,10 @@ void checkCollision(){
                         bullets[i].y=-scaleY-100;bullets[i].isAlive=false;
                         enemy[j].Y1=600; enemy[j].Y2=600; enemy[j].Y3=600; enemy[j].Y4=600;enemy[j].isAlive=false;
                         l_score++;
+                        currentLevel.remainingEnemies--;
+                        if(currentLevel.remainingEnemies==0){
+                            levelUp();
+                        }
                         break;
                 }
             }
@@ -296,6 +370,7 @@ void init(void){
     centerX=0;centerY=-scaleY+20;
     initShipPosition();
     initPosition();
+    initLevels();
 }
 
 int main(int argc, char** argv){
