@@ -1,7 +1,3 @@
-/*
-        ________INTERVAL________
-          09 November 2021 14:45:10
-*/
 #include<bits/stdc++.h>
 #include<windows.h>
 #include<stdio.h>
@@ -21,11 +17,7 @@ float sWidth=600.0,sHeight=600.0,scaleX=500.0,scaleY=500.0,centerX,centerY;
 float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
 float enemySpeed=0.1;
 bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,isWin=false;
-int roundScore=0,currentLevelIndex;
-struct Ship{
-    float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5,speed;
-};
-Ship ship;
+int roundScore=0;
 
 struct Level{
     int noOfEnemies,remainingEnemies;
@@ -34,6 +26,11 @@ struct Level{
 };
 
 Level levels[10],currentLevel;
+
+struct Ship{
+    float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5,speed;
+};
+Ship ship;
 
 struct Bullet{
     float x;
@@ -48,18 +45,7 @@ struct Enemy{
 };
 Enemy enemy [100];
 
-void winningText(int flg=0){
-    if(!flg)return;
-    glColor3f (1.0, 0.0, 0.0);
-    glRasterPos2f(-250,0);
-    string str="Congratulations!!! LEVEL 1 COMPLETE!!";
-    int len=str.length();
-    cout<<str<<endl;
-    for(int i=0;i<len;i++){
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
-    }
-}
-
+int currentLevelIndex;
 
 void initLevels(){
     levels[0].noOfEnemies = 2;
@@ -90,6 +76,17 @@ void initLevels(){
     currentLevel.remainingEnemies = currentLevel.noOfEnemies;
 }
 
+void winningText(int flg=0){
+    if(!flg)return;
+    glColor3f (1.0, 0.0, 0.0);
+    glRasterPos2f(-250,0);
+    string str="Congratulations!!! LEVEL 1 COMPLETE!!";
+    int len=str.length();
+    cout<<str<<endl;
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+}
 
 void levelUp(){
     winningText(1);
@@ -135,7 +132,6 @@ void printScore(int score){
     }
 }
 
-
 void deadText(int flg=0){
     if(!flg)return;
     glColor3f (1.0, 0.0, 0.0);
@@ -150,6 +146,7 @@ void deadText(int flg=0){
 
 
 void myDisplay(void){
+    //printf("myDisplay\n");
     glClear (GL_COLOR_BUFFER_BIT);
     //glMatrixMode(GL_MODELVIEW);
     glBegin(GL_POLYGON);
@@ -275,14 +272,16 @@ void checkCollision(){
 
 
 void startMovement(){
+    //printf("startMovement\n");
     checkCollision();
-    gameOver();
+    //gameOver();
     if(isMoveBullet)moveBullet();
     if(isMoveEnemy)moveEnemy();
 }
 
 
 void movement(){
+    printf("movement\n");
     glutIdleFunc(NULL);
     if(isGameOver||isWin)return;
     glutIdleFunc(startMovement);
