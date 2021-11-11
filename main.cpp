@@ -36,9 +36,15 @@ struct Enemy{
 };
 Enemy enemy [100];
 
+struct PowerBall{
+    float x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8;
+    bool isAlive=false;
+};
+PowerBall power_ball[5];
+
 struct Level{
     int noOfEnemies,remainingEnemies;
-    float enemySpeed;
+    float enemySpeed,power_ball_speed;
     int levelNo;
 };
 Level levels[10],currentLevel;
@@ -50,15 +56,31 @@ void displayInfo(){
     }
 }
 void resetGame(){
+    srand(time(0));
+    int modY=50;
     for(int i=0;i<10;i++){
         bullets[i].x=0.0;bullets[i].y=-scaleY-100;bullets[i].isAlive=false;
     }
-    srand(time(0));
-    int modY=50;
+
+    for(int i=0;i<currentLevel.levelNo;i++){
+        int randX= (rand() % 900)-450;
+        int randY= (rand() % (modY*currentLevel.noOfEnemies))+600;
+
+        power_ball[i].x1=randX;power_ball[i].y1=randY+12;
+        power_ball[i].x2=randX+20;power_ball[i].y2=randY+20;
+        power_ball[i].x3=randX+12;power_ball[i].y3=randY;
+        power_ball[i].x4=randX+20;power_ball[i].y4=randY-20;
+        power_ball[i].x5=randX;power_ball[i].y5=randY-12;
+        power_ball[i].x6=randX-20;power_ball[i].y6=randY-20;
+        power_ball[i].x7=randX-12;power_ball[i].y7=randY;
+        power_ball[i].x8=randX-20;power_ball[i].y8=randY+20;
+        power_ball[i].isAlive=true;
+    }
+
     cout<<currentLevel.noOfEnemies<<" : count || speed: "<<currentLevel.enemySpeed<<endl;
     for(int i=0;i<currentLevel.noOfEnemies;i++){
             int randX= (rand() % 900)-450;
-            int randY= (rand() % (modY*currentLevel.noOfEnemies))+600;
+            int randY= (rand() % (modY*currentLevel.noOfEnemies))+500;
 
             enemy[i].X1=randX;enemy[i].Y1=randY;
             enemy[i].X2=randX+40;enemy[i].Y2=randY;
@@ -161,6 +183,37 @@ void myDisplay(void){
         glVertex3f(ship.shipX5,ship.shipY5, 0.0f);
     glEnd();
 
+    /*
+        power ball co-ordinate
+             x1
+          x8    x2
+        x7        x3
+          x6    x4
+             x5
+    */
+    for(int i=0;i<5;i++){
+        if(!power_ball[i].isAlive)continue;
+        glBegin(GL_POLYGON);
+            glColor3f (0.0, 0.0, 1.0);
+            glVertex3f(power_ball[i].x1,power_ball[i].y1, 0.0f);
+            glColor3f (.0, 1.0, 0.0);
+            glVertex3f(power_ball[i].x2,power_ball[i].y2, 0.0f);
+            glColor3f (0.0, 1.0, 1.0);
+            glVertex3f(power_ball[i].x3,power_ball[i].y3,0.0f);
+            glColor3f (1.0, 0.0, 0.0);
+            glVertex3f(power_ball[i].x4,power_ball[i].y4,0.0f);
+            glColor3f (1.0, 0.0, 1.0);
+            glVertex3f(power_ball[i].x5,power_ball[i].y5, 0.0f);
+            glColor3f (0.10, 0.0, 0.10);
+            glVertex3f(power_ball[i].x6,power_ball[i].y6, 0.0f);
+            glColor3f (0.10, 0.10, 1.0);
+            glVertex3f(power_ball[i].x7,power_ball[i].y7, 0.0f);
+            glColor3f (0.20, 0.30, 0.5);
+            glVertex3f(power_ball[i].x8,power_ball[i].y8, 0.0f);
+        glEnd();
+    }
+
+
     for(int j=0;j<10;j++){
         if(!bullets[j].isAlive)continue;
         glBegin(GL_TRIANGLE_FAN);
@@ -230,7 +283,20 @@ void moveEnemy(){
     //displayInfo();
     glutPostRedisplay();
 }
-
+void movePower(){
+    for(int i=0;i<5;i++){
+        if(!power_ball[i].isAlive)continue;
+        power_ball[i].y1-=currentLevel.power_ball_speed;
+        power_ball[i].y2-=currentLevel.power_ball_speed;
+        power_ball[i].y3-=currentLevel.power_ball_speed;
+        power_ball[i].y4-=currentLevel.power_ball_speed;
+        power_ball[i].y5-=currentLevel.power_ball_speed;
+        power_ball[i].y6-=currentLevel.power_ball_speed;
+        power_ball[i].y7-=currentLevel.power_ball_speed;
+        power_ball[i].y8-=currentLevel.power_ball_speed;
+    }
+    glutPostRedisplay();
+}
 void gameOver(){
     for(int i=0;i<currentLevel.noOfEnemies;i++){
         if(enemy[i].Y3<=-500){
@@ -311,6 +377,7 @@ void startMovement(){
     gameOver();
     moveBullet();
     moveEnemy();
+    movePower();
 }
 
 
@@ -376,6 +443,7 @@ void initLevels(){
         levels[i].noOfEnemies=((i+1)*10);
         levels[i].enemySpeed=(i+1)*.05;
         levels[i].levelNo=i+1;
+        levels[i].power_ball_speed=(i+1)*.07;
     }
     currentLevelIndex=0;
     currentLevel = levels[currentLevelIndex];
