@@ -25,8 +25,7 @@ struct Ship{
 Ship ship;
 
 struct Bullet{
-    float x;
-    float y;
+    float x, y;
     bool isAlive= false;
 };
 Bullet bullets[10];
@@ -46,7 +45,8 @@ Level levels[10],currentLevel;
 
 void displayInfo(){
     for(int i=0;i<currentLevel.noOfEnemies;i++){
-        cout<<enemy[i].X4<<" "<<enemy[i].Y4<<" "<<enemy[i].isAlive<<endl;
+            cout<<bullets[i].x<<" "<<bullets[i].y<<endl;
+        //cout<<enemy[i].X4<<" "<<enemy[i].Y4<<" "<<enemy[i].isAlive<<endl;
     }
 }
 void resetGame(){
@@ -161,14 +161,15 @@ void myDisplay(void){
         glVertex3f(ship.shipX5,ship.shipY5, 0.0f);
     glEnd();
 
-    glBegin(GL_TRIANGLE_FAN);
-        for(int j=0;j<10;j++){
-            if(!bullets[j].isAlive)continue;
+    for(int j=0;j<10;j++){
+        if(!bullets[j].isAlive)continue;
+        glBegin(GL_TRIANGLE_FAN);
             glVertex2f(bullets[j].x,bullets[j].y);
             for(float i = 0.0f; i <= 360; i++)
                 glVertex2f(7*cos(M_PI * i / 180.0) + bullets[j].x, 7*sin(M_PI * i / 180.0) + bullets[j].y);
-        }
-    glEnd();
+
+        glEnd();
+    }
 
     /*
         enemy co-ordinate
@@ -194,22 +195,6 @@ void myDisplay(void){
     glutSwapBuffers();
 }
 
-void loadBullet(){
-    int id=-1;
-    for(int i=0;i<10;i++){
-        if(!bullets[i].isAlive){
-            if(id<0)id=i;
-        }else{
-            if(bullets[i].y>500){
-                bullets[i].isAlive=false;
-
-            }
-        }
-    }
-    bullets[id].x=ship.shipX1;bullets[id].y=ship.shipY1;
-    bullets[id].isAlive=true;
-    //cout<<id<<" active "<<bullets[id].x<<" "<<bullets[id].y<<endl;
-}
 
 void moveBullet(){
     for(int i=0;i<10;i++){
@@ -218,8 +203,20 @@ void moveBullet(){
         }
         if(bullets[i].y>500)bullets[i].isAlive=false;
     }
-    glutPostRedisplay();
 }
+
+void loadBullet(){
+    int id=-1;
+    for(int i=0;i<10;i++){
+        if(!bullets[i].isAlive){
+            id=i;break;
+        }
+    }
+    bullets[id].x=ship.shipX1;bullets[id].y=ship.shipY1;
+    bullets[id].isAlive=true;
+    //cout<<id<<" active "<<bullets[id].x<<" "<<bullets[id].y<<endl;
+}
+
 
 void moveEnemy(){
     //cout<<" move enemy "<<currentLevel.noOfEnemies<<endl;
@@ -312,8 +309,8 @@ void startMovement(){
     //printf("startMovement\n");
     checkCollision();
     gameOver();
-    if(isMoveBullet)moveBullet();
-    if(isMoveEnemy)moveEnemy();
+    moveBullet();
+    moveEnemy();
 }
 
 
@@ -324,11 +321,10 @@ void startGame(){
 }
 
 void charKeyboard(unsigned char key, int x, int y){
-    if(isGameOver||isWin)return;
+    if(isGameOver)return;
     switch(key){
         case 32:
             loadBullet();
-            isMoveBullet=true;
             startGame();
             break;
         case 's':
