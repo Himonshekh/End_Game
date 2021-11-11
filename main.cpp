@@ -148,7 +148,71 @@ void printScore(int score){
         //winningText(1);
     }
 }
+string getTopScore(){
+    string file_score="";
+    ifstream file_read ("C:/Users/Himon/Desktop/run/input.txt");
+    if (file_read.is_open()){
+        getline (file_read,file_score);
+        file_read.close();
+    }
+    reverse(file_score.begin(),file_score.end());
+    return file_score;
+}
+string getRoundScore(){
+    string str="";
+    int t_roundScore=roundScore;
+    while(t_roundScore){
+        char dig=(t_roundScore%10)+'0';
+        str=str+dig;
+        t_roundScore/=10;
+    }
+    reverse(str.begin(),str.end());
+    return str;
+}
+void printCompareScore(){
+    glColor3f(0.0, 1.0, 0.0);
+    glRasterPos2f(-120,250);
+    string str="Your Score: "+getRoundScore();
+    int len=str.length();
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
 
+    glColor3f(0.0, 1.0, 0.0);
+    glRasterPos2f(-150,300);
+    str="Highest Score: "+getTopScore();
+    len=str.length();
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+}
+void compareTopScore(){
+    string file_score="";
+    int top_score=0;
+    ifstream file_read ("C:/Users/Himon/Desktop/run/input.txt");
+    if (file_read.is_open()){
+        getline (file_read,file_score);
+        file_read.close();
+    }
+    int len=file_score.length();
+    for(int i=len-1; i>=0; i--){
+        top_score=top_score*10 + (file_score[i]-'0');
+    }
+    if(top_score<roundScore){
+        ofstream file_write;
+        file_write.open ("C:/Users/Himon/Desktop/run/input.txt");
+        file_score="";
+        top_score=roundScore;
+        while(top_score){
+            char dig=(top_score%10)+'0';
+            file_score =file_score+dig;
+            top_score/=10;
+        }
+        file_write << file_score;
+        file_write.close();
+    }
+    printCompareScore();
+}
 void deadText(int flg=0){
     if(!flg)return;
     glColor3f (1.0, 0.0, 0.0);
@@ -166,6 +230,7 @@ void deadText(int flg=0){
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
+    compareTopScore();
 }
 
 
@@ -457,7 +522,7 @@ void initShipPosition(){
 void initLevels(){
     for(int i=0;i<10;i++){
         levels[i].noOfEnemies=((i+1)*10);
-        levels[i].enemySpeed=(i+1)*.405;
+        levels[i].enemySpeed=(i+1)*.05;
         levels[i].levelNo=i+1;
         levels[i].power_ball_speed=(i+1)*.08;
     }
@@ -479,11 +544,13 @@ void init(void){
 }
 
 void restartGame(){
+    roundScore=0;
     isGameOver=false;
     initShipPosition();
     initLevels();
     resetGame();
 }
+
 void charKeyboard(unsigned char key, int x, int y){
     if(isGameOver){
         if(key=='r'||key=='R'){
