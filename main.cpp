@@ -8,6 +8,7 @@
 #include <GL/gl.h>
 
 using namespace std;
+
 float colors[10][3] ={{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
                       {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0},
                       {0.0, 0.0, 0.0}, {0.0, 0.39, 0.0},
@@ -55,6 +56,7 @@ void displayInfo(){
         //cout<<enemy[i].X4<<" "<<enemy[i].Y4<<" "<<enemy[i].isAlive<<endl;
     }
 }
+
 
 void resetGame(){
     srand(time(0));
@@ -150,10 +152,17 @@ void printScore(int score){
 void deadText(int flg=0){
     if(!flg)return;
     glColor3f (1.0, 0.0, 0.0);
-    glRasterPos2f(-120,0);
+    glRasterPos2f(-120,100);
     string str="Game Over!!!";
     int len=str.length();
     cout<<str<<endl;
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+
+    glRasterPos2f(-180,+50);
+    str="Restart ? PRESS R/r";
+    len=str.length();
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
@@ -435,8 +444,55 @@ void startGame(){
     glutIdleFunc(startMovement);
 }
 
+
+
+void initShipPosition(){
+    ship.speed=15;
+    ship.shipX1=centerX; ship.shipX2=centerX+50; ship.shipX3=centerX+25; ship.shipX4=centerX-25; ship.shipX5=centerX-50;
+    ship.shipY1=centerY+100;ship.shipY2=centerY;ship.shipY3=centerY+25;ship.shipY4=centerY+25;ship.shipY5=centerY;
+}
+
+
+
+void initLevels(){
+    for(int i=0;i<10;i++){
+        levels[i].noOfEnemies=((i+1)*10);
+        levels[i].enemySpeed=(i+1)*.405;
+        levels[i].levelNo=i+1;
+        levels[i].power_ball_speed=(i+1)*.08;
+    }
+    currentLevelIndex=0;
+    currentLevel = levels[currentLevelIndex];
+    currentLevel.remainingEnemies = currentLevel.noOfEnemies;
+}
+
+void init(void){
+    //glShadeModel (GL_SMOOTH);
+    glClearColor(0.1f, 0.0f, 0.1f, 0.0);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glOrtho(-scaleX, scaleX,-scaleY , scaleY, -1.0, 1.0);
+    centerX=0;centerY=-scaleY+20;
+    isGameOver=false;
+    initShipPosition();
+    initLevels();
+    resetGame();
+}
+
+void restartGame(){
+    isGameOver=false;
+    initShipPosition();
+    initLevels();
+    resetGame();
+}
 void charKeyboard(unsigned char key, int x, int y){
-    if(isGameOver)return;
+    if(isGameOver){
+        if(key=='r'||key=='R'){
+            cout<<"yes"<<endl;
+            restartGame();
+            startGame();
+        }
+        return;
+    }
     switch(key){
         case 32:
             loadBullet();
@@ -475,38 +531,6 @@ void keyboard(int key, int x, int y){
         default:
             break;
     }
-}
-
-
-void initShipPosition(){
-    ship.speed=15;
-    ship.shipX1=centerX; ship.shipX2=centerX+50; ship.shipX3=centerX+25; ship.shipX4=centerX-25; ship.shipX5=centerX-50;
-    ship.shipY1=centerY+100;ship.shipY2=centerY;ship.shipY3=centerY+25;ship.shipY4=centerY+25;ship.shipY5=centerY;
-}
-
-
-
-void initLevels(){
-    for(int i=0;i<10;i++){
-        levels[i].noOfEnemies=((i+1)*10);
-        levels[i].enemySpeed=(i+1)*.05;
-        levels[i].levelNo=i+1;
-        levels[i].power_ball_speed=(i+1)*.08;
-    }
-    currentLevelIndex=0;
-    currentLevel = levels[currentLevelIndex];
-    currentLevel.remainingEnemies = currentLevel.noOfEnemies;
-}
-
-void init(void){
-    //glShadeModel (GL_SMOOTH);
-    glClearColor(0.1f, 0.0f, 0.1f, 0.0);
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glOrtho(-scaleX, scaleX,-scaleY , scaleY, -1.0, 1.0);
-    centerX=0;centerY=-scaleY+20;
-    initShipPosition();
-    initLevels();
-    resetGame();
 }
 
 int main(int argc, char** argv){
