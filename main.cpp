@@ -55,6 +55,7 @@ void displayInfo(){
         //cout<<enemy[i].X4<<" "<<enemy[i].Y4<<" "<<enemy[i].isAlive<<endl;
     }
 }
+
 void resetGame(){
     srand(time(0));
     int modY=50;
@@ -90,6 +91,7 @@ void resetGame(){
     }
     //isWin=false;
 }
+
 void winningText(int flg=0){
     if(!flg)return;
     glColor3f (1.0, 0.0, 0.0);
@@ -101,6 +103,7 @@ void winningText(int flg=0){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
 }
+
 void levelUp(){
     //winningText(1);
     currentLevelIndex++;
@@ -185,11 +188,14 @@ void myDisplay(void){
 
     /*
         power ball co-ordinate
-             x1
-          x8    x2
-        x7        x3
-          x6    x4
-             x5
+        x8              x2
+                x1
+
+            x7       x3
+
+                x5
+
+        x6              x4
     */
     for(int i=0;i<5;i++){
         if(!power_ball[i].isAlive)continue;
@@ -213,7 +219,7 @@ void myDisplay(void){
         glEnd();
     }
 
-
+    glColor3f (1.0, 1.0, 1.0);
     for(int j=0;j<10;j++){
         if(!bullets[j].isAlive)continue;
         glBegin(GL_TRIANGLE_FAN);
@@ -283,6 +289,7 @@ void moveEnemy(){
     //displayInfo();
     glutPostRedisplay();
 }
+
 void movePower(){
     for(int i=0;i<5;i++){
         if(!power_ball[i].isAlive)continue;
@@ -297,6 +304,7 @@ void movePower(){
     }
     glutPostRedisplay();
 }
+
 void gameOver(){
     for(int i=0;i<currentLevel.noOfEnemies;i++){
         if(enemy[i].Y3<=-500){
@@ -317,7 +325,12 @@ void updateScore(int score){
     }
     printScore(roundScore);
 }
-bool isCollisionWithShip(){
+
+void updateBulletPower(){
+    cout<<"update bullet power"<<endl;
+}
+
+bool isCollisionShipWithEnemy(){
     for(int i=0;i<currentLevel.noOfEnemies;i++){
         if(!enemy[i].isAlive)continue;
         float leftX=enemy[i].X4,rightX=enemy[i].X3;
@@ -326,7 +339,7 @@ bool isCollisionWithShip(){
                 float distFromCenter=fabs(ship.shipX1-j),y_positionOfSlog;
                 y_positionOfSlog=ship.shipY1-(distFromCenter*2.0);
                 if(y_positionOfSlog>=enemy[i].Y4){
-                    cout<<"touch with ship!!"<<endl;
+                    cout<<"touched... ship and enemy!!"<<endl;
                     return true;
                 }
             }
@@ -334,12 +347,47 @@ bool isCollisionWithShip(){
     }
     return false;
 }
+
+void vanishJellyFish(int id){
+    power_ball[id].y1=-scaleY-100;
+    power_ball[id].y2=-scaleY-100;
+    power_ball[id].y3=-scaleY-100;
+    power_ball[id].y4=-scaleY-100;
+    power_ball[id].y5=-scaleY-100;
+    power_ball[id].y6=-scaleY-100;
+    power_ball[id].y7=-scaleY-100;
+    power_ball[id].y8=-scaleY-100;
+    power_ball[id].isAlive=false;
+}
+
+bool isCollisionShipWithPower(){
+    for(int i=0;i<currentLevel.levelNo;i++){
+        if(!power_ball[i].isAlive)continue;
+        float leftX=power_ball[i].x6,rightX=power_ball[i].x4;
+        for(float j=leftX;j<=rightX;j+=2){
+            if(j>=ship.shipX5&&j<=ship.shipX2 && power_ball[i].y6<=ship.shipY1&&power_ball[i].y6>=-scaleX+20){
+                float distFromCenter=fabs(ship.shipX1-j),y_positionOfSlog;
+                y_positionOfSlog=ship.shipY1-(distFromCenter*2.0);
+                if(y_positionOfSlog>=power_ball[i].y6){
+                    vanishJellyFish(i);
+                    cout<<"touched... ship and jelly fish!!"<<endl;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void checkCollision(){
-    if(isCollisionWithShip()){
+    if(isCollisionShipWithEnemy()){
         isGameOver=true;
         glutIdleFunc(NULL);
         deadText(1);
         return;
+    }
+    if(isCollisionShipWithPower()){
+        updateBulletPower();
     }
     /*
         enemy co-ordinate
@@ -443,7 +491,7 @@ void initLevels(){
         levels[i].noOfEnemies=((i+1)*10);
         levels[i].enemySpeed=(i+1)*.05;
         levels[i].levelNo=i+1;
-        levels[i].power_ball_speed=(i+1)*.07;
+        levels[i].power_ball_speed=(i+1)*.08;
     }
     currentLevelIndex=0;
     currentLevel = levels[currentLevelIndex];
