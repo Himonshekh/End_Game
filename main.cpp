@@ -9,10 +9,10 @@
 
 using namespace std;
 
-float colors[10][3] ={{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
-                      {0.0, 0.0, 1.0}, {1.0, 1.0, 0.0},
-                      {0.0, 0.0, 0.0}, {0.0, 0.39, 0.0},
-                      {0.29, 0.0, 0.5},{1.0, 0.0, 1.0}};
+float colors[10][3] ={{1.0, 0.2, 0.0}, {0.4, 1.0, 0.0},
+                      {0.0, 0.0, 1.0}, {1.0, 1.0, 0.4},
+                      {0.4, 0.5, 0.8}, {0.7, 0.39, 0.0},
+                      {0.29, 0.8, 0.5},{1.0, 0.0, 1.0}};
 
 float sWidth=600.0,sHeight=600.0,scaleX=500.0,scaleY=500.0,centerX,centerY;
 float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
@@ -347,16 +347,17 @@ void loadBulletWithPower(){
                 bullets[i].x=ship.shipX1;bullets[i].y=ship.shipY1;
                 bullets[i].isAlive=true;
             }else if(cnt==2){
-                bullets[i].x=ship.shipX1-50;bullets[i].y=ship.shipY1;
+                bullets[i].x=ship.shipX1-40;bullets[i].y=ship.shipY1;
                 bullets[i].isAlive=true;
             }else{
-                bullets[i].x=ship.shipX1+50;bullets[i].y=ship.shipY1;
+                bullets[i].x=ship.shipX1+40;bullets[i].y=ship.shipY1;
                 bullets[i].isAlive=true;
             }
             cnt--;
         }
     }
 }
+
 void loadBullet(){
     if(currentLevel.jellyFishPower){
         loadBulletWithPower();
@@ -500,17 +501,20 @@ void checkCollision(){
         if(bullets[i].isAlive){
             for(int j=0;j<currentLevel.noOfEnemies;j++){
                 if(!enemy[j].isAlive)continue;
-                if((bullets[i].x >= enemy[j].X4 && bullets[i].x<=enemy[j].X3 )&&
-                   (bullets[i].y >= enemy[j].Y4 && bullets[i].y <= enemy[j].Y1)){
-                        bullets[i].y=-scaleY-100;bullets[i].isAlive=false;
-                        enemy[j].Y1=600; enemy[j].Y2=600; enemy[j].Y3=600; enemy[j].Y4=600;enemy[j].isAlive=false;
-                        l_score++;
-                        currentLevel.remainingEnemies--;
-                        if(currentLevel.remainingEnemies==0){
-                            levelUp();
-                        }
-                        break;
+                for(float k=bullets[i].x-7;k<=bullets[i].x+7;k+=1){
+                   if((k >= enemy[j].X4 && k<=enemy[j].X3 )&&
+                       (bullets[i].y >= enemy[j].Y4 && bullets[i].y <= enemy[j].Y1)){
+                            bullets[i].y=-scaleY-100;bullets[i].isAlive=false;
+                            enemy[j].Y1=600; enemy[j].Y2=600; enemy[j].Y3=600; enemy[j].Y4=600;enemy[j].isAlive=false;
+                            l_score++;
+                            currentLevel.remainingEnemies--;
+                            if(currentLevel.remainingEnemies==0){
+                                levelUp();
+                            }
+                            break;
+                    }
                 }
+
             }
         }
     }
