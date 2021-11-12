@@ -45,7 +45,7 @@ PowerBall power_ball[5];
 
 struct Level{
     int noOfEnemies,remainingEnemies;
-    float enemySpeed,power_ball_speed;
+    float enemySpeed,power_ball_speed,jellyFishPower;
     int levelNo;
 };
 Level levels[10],currentLevel;
@@ -59,6 +59,7 @@ void displayInfo(){
 
 
 void resetGame(){
+    currentLevel.jellyFishPower=0;
     srand(time(0));
     int modY=50;
     for(int i=0;i<10;i++){
@@ -80,7 +81,7 @@ void resetGame(){
         power_ball[i].isAlive=true;
     }
 
-    cout<<currentLevel.noOfEnemies<<" : count || speed: "<<currentLevel.enemySpeed<<endl;
+    cout<<currentLevel.noOfEnemies<<" : enemy || speed: "<<currentLevel.enemySpeed<<endl;
     for(int i=0;i<currentLevel.noOfEnemies;i++){
             int randX= (rand() % 900)-450;
             int randY= (rand() % (modY*currentLevel.noOfEnemies))+500;
@@ -338,7 +339,30 @@ void moveBullet(){
     }
 }
 
+void loadBulletWithPower(){
+    int cnt=3;
+    for(int i=0;i<10&&cnt;i++){
+        if(!bullets[i].isAlive){
+            if(cnt==3){
+                bullets[i].x=ship.shipX1;bullets[i].y=ship.shipY1;
+                bullets[i].isAlive=true;
+            }else if(cnt==2){
+                bullets[i].x=ship.shipX1-50;bullets[i].y=ship.shipY1;
+                bullets[i].isAlive=true;
+            }else{
+                bullets[i].x=ship.shipX1+50;bullets[i].y=ship.shipY1;
+                bullets[i].isAlive=true;
+            }
+            cnt--;
+        }
+    }
+}
 void loadBullet(){
+    if(currentLevel.jellyFishPower){
+        loadBulletWithPower();
+        currentLevel.jellyFishPower--;
+        return;
+    }
     int id=-1;
     for(int i=0;i<10;i++){
         if(!bullets[i].isAlive){
@@ -401,6 +425,7 @@ void updateScore(int score){
 }
 
 void updateBulletPower(){
+    currentLevel.jellyFishPower+=10;
     cout<<"update bullet power"<<endl;
 }
 
@@ -526,6 +551,7 @@ void initLevels(){
         levels[i].levelNo=i+1;
         levels[i].power_ball_speed=(i+1)*.08;
     }
+    currentLevel.jellyFishPower=0;
     currentLevelIndex=0;
     currentLevel = levels[currentLevelIndex];
     currentLevel.remainingEnemies = currentLevel.noOfEnemies;
