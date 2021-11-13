@@ -9,15 +9,15 @@
 
 using namespace std;
 
-float colors[10][3] ={{1.0, 0.2, 0.0}, {0.4, 1.0, 0.0},
+float colors[10][3] ={{1.0, 0.2, 0.0}, {0.4, 0.5, 0.7},
                       {0.0, 0.0, 1.0}, {1.0, 1.0, 0.4},
                       {0.4, 0.5, 0.8}, {0.7, 0.39, 0.0},
                       {0.29, 0.8, 0.5},{1.0, 0.0, 1.0}};
 
 float sWidth=600.0,sHeight=600.0,scaleX=500.0,scaleY=500.0,centerX,centerY;
 float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
-float enemySpeed=0.1;
-bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,isWin=false;
+float enemySpeed=0.1,colorR=.9,colorG=0.0,colorB=0.9;
+bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,isWin=false,level_up_flag=false,mission_passed_flag=false;
 int roundScore=0,currentLevelIndex;
 
 struct Ship{
@@ -29,26 +29,26 @@ struct Bullet{
     float x, y;
     bool isAlive= false;
 };
-Bullet bullets[10];
+Bullet bullets[11];
 
 struct Enemy{
     float X1,X2,X3,X4,Y1,Y2,Y3,Y4;
     bool isAlive=true;
 };
-Enemy enemy [100];
+Enemy enemy [101];
 
 struct PowerBall{
     float x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8;
     bool isAlive=false;
 };
-PowerBall power_ball[5];
+PowerBall power_ball[11];
 
 struct Level{
     int noOfEnemies,remainingEnemies;
     float enemySpeed,power_ball_speed,jellyFishPower;
     int levelNo;
 };
-Level levels[10],currentLevel;
+Level levels[11],currentLevel;
 
 void displayInfo(){
     for(int i=0;i<currentLevel.noOfEnemies;i++){
@@ -68,7 +68,7 @@ void resetGame(){
 
     for(int i=0;i<currentLevel.levelNo;i++){
         int randX= (rand() % 900)-450;
-        int randY= (rand() % (modY*currentLevel.noOfEnemies))+600;
+        int randY= (rand() % (modY*currentLevel.noOfEnemies)) +700;
 
         power_ball[i].x1=randX;power_ball[i].y1=randY+12;
         power_ball[i].x2=randX+20;power_ball[i].y2=randY+20;
@@ -84,7 +84,7 @@ void resetGame(){
     cout<<currentLevel.noOfEnemies<<" : enemy || speed: "<<currentLevel.enemySpeed<<endl;
     for(int i=0;i<currentLevel.noOfEnemies;i++){
             int randX= (rand() % 900)-450;
-            int randY= (rand() % (modY*currentLevel.noOfEnemies))+500;
+            int randY= (rand() % (modY*currentLevel.noOfEnemies))+600;
 
             enemy[i].X1=randX;enemy[i].Y1=randY;
             enemy[i].X2=randX+40;enemy[i].Y2=randY;
@@ -94,26 +94,34 @@ void resetGame(){
     }
     //isWin=false;
 }
-
-void winningText(int flg=0){
-    if(!flg)return;
-    glColor3f (1.0, 0.0, 0.0);
-    glRasterPos2f(-200,0);
-    string str="LEVEL COMPLETE!!";
+void levelUpText(){
+    if(!level_up_flag)return;
+    glColor3f(colorR, colorG, colorB);
+    glRasterPos2f(-130,0);
+    string str="LEVEL COMPLETE!!!";
     int len=str.length();
-    cout<<str<<endl;
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+    colorB-=.0008;colorR-=.0008;
+    if(colorB<.2){
+        level_up_flag=false;
+        colorB=colorR=.9;
     }
 }
 
 void levelUp(){
-    //winningText(1);
+    level_up_flag=true;
     currentLevelIndex++;
+    if(currentLevelIndex>=10){
+        mission_passed_flag=true;
+        currentLevelIndex=0;
+    }
     currentLevel = levels[currentLevelIndex];
     currentLevel.remainingEnemies = currentLevel.noOfEnemies;
     currentLevel.levelNo = currentLevelIndex+1;
     resetGame();
+    glutPostRedisplay();
 }
 
 void printScore(int score){
@@ -143,12 +151,8 @@ void printScore(int score){
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,enemyInfo[i]);
     }
-    int tot_score=(currentLevel.levelNo*(currentLevel.levelNo+1))/2;
-    tot_score*=10;
-    if(score==tot_score){
-        //winningText(1);
-    }
 }
+
 string getTopScore(){
     string file_score="";
     ifstream file_read ("C:/Users/Himon/Desktop/run/input.txt");
@@ -159,6 +163,7 @@ string getTopScore(){
     reverse(file_score.begin(),file_score.end());
     return file_score;
 }
+
 string getRoundScore(){
     string str="";
     int t_roundScore=roundScore;
@@ -170,6 +175,7 @@ string getRoundScore(){
     reverse(str.begin(),str.end());
     return str;
 }
+
 void printCompareScore(){
     glColor3f(0.0, 1.0, 0.0);
     glRasterPos2f(-120,250);
@@ -187,6 +193,7 @@ void printCompareScore(){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
 }
+
 void compareTopScore(){
     string file_score="";
     int top_score=0;
@@ -214,6 +221,7 @@ void compareTopScore(){
     }
     printCompareScore();
 }
+
 void deadText(int flg=0){
     if(!flg)return;
     glColor3f (1.0, 0.0, 0.0);
@@ -226,7 +234,7 @@ void deadText(int flg=0){
     }
 
     glRasterPos2f(-180,+50);
-    str="Restart ? PRESS R/r";
+    str="Restart ? PRESS R";
     len=str.length();
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
@@ -234,6 +242,17 @@ void deadText(int flg=0){
     compareTopScore();
 }
 
+void missionPassed(){
+    if(!mission_passed_flag)return;
+    glColor3f (1.0, 0.0, 0.0);
+    glRasterPos2f(-130,100);
+    string str="MISSION PASSED!!!";
+    int len=str.length();
+    cout<<str<<endl;
+    for(int i=0;i<len;i++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
+    }
+}
 
 void myDisplay(void){
     //printf("myDisplay\n");
@@ -272,7 +291,7 @@ void myDisplay(void){
 
         x6              x4
     */
-    for(int i=0;i<5;i++){
+    for(int i=0;i<10;i++){
         if(!power_ball[i].isAlive)continue;
         glBegin(GL_POLYGON);
             glColor3f (0.0, 0.0, 1.0);
@@ -324,7 +343,8 @@ void myDisplay(void){
         }
     glEnd();
     printScore(roundScore);
-    winningText(isWin==true);
+    levelUpText();
+    missionPassed();
     deadText(isGameOver==true);
     glutSwapBuffers();
 }
@@ -377,6 +397,7 @@ void loadBullet(){
 
 
 void moveEnemy(){
+    if(mission_passed_flag)return;
     //cout<<" move enemy "<<currentLevel.noOfEnemies<<endl;
     for(int i=0;i<currentLevel.noOfEnemies;i++){
         if(!enemy[i].isAlive)continue;
@@ -390,7 +411,9 @@ void moveEnemy(){
 }
 
 void movePower(){
-    for(int i=0;i<5;i++){
+    if(mission_passed_flag)return;
+    //cout<<"power ball"<<endl;
+    for(int i=0;i<10;i++){
         if(!power_ball[i].isAlive)continue;
         power_ball[i].y1-=currentLevel.power_ball_speed;
         power_ball[i].y2-=currentLevel.power_ball_speed;
@@ -521,7 +544,6 @@ void checkCollision(){
     updateScore(l_score);
 }
 
-
 void startMovement(){
     //printf("startMovement\n");
     checkCollision();
@@ -538,22 +560,18 @@ void startGame(){
     glutIdleFunc(startMovement);
 }
 
-
-
 void initShipPosition(){
     ship.speed=15;
     ship.shipX1=centerX; ship.shipX2=centerX+50; ship.shipX3=centerX+25; ship.shipX4=centerX-25; ship.shipX5=centerX-50;
     ship.shipY1=centerY+100;ship.shipY2=centerY;ship.shipY3=centerY+25;ship.shipY4=centerY+25;ship.shipY5=centerY;
 }
 
-
-
 void initLevels(){
     for(int i=0;i<10;i++){
         levels[i].noOfEnemies=((i+1)*10);
-        levels[i].enemySpeed=(i+1)*.05;
+        levels[i].enemySpeed=i*.03+.1;
         levels[i].levelNo=i+1;
-        levels[i].power_ball_speed=(i+1)*.08;
+        levels[i].power_ball_speed=i*.05 +.2;
     }
     currentLevel.jellyFishPower=0;
     currentLevelIndex=0;
