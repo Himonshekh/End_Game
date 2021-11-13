@@ -568,10 +568,10 @@ void initShipPosition(){
 
 void initLevels(){
     for(int i=0;i<10;i++){
-        levels[i].noOfEnemies=((i+1)*10);
-        levels[i].enemySpeed=i*.03+.1;
+        levels[i].noOfEnemies=((i+1)*5);
+        levels[i].enemySpeed=i*.03+.15;
         levels[i].levelNo=i+1;
-        levels[i].power_ball_speed=i*.05 +.2;
+        levels[i].power_ball_speed=i*.05 +.3;
     }
     currentLevel.jellyFishPower=0;
     currentLevelIndex=0;
