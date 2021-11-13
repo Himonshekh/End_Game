@@ -16,8 +16,8 @@ float colors[10][3] ={{1.0, 0.2, 0.0}, {0.4, 0.5, 0.7},
 
 float sWidth=600.0,sHeight=600.0,scaleX=500.0,scaleY=500.0,centerX,centerY;
 float shipX1,shipX2,shipX3,shipX4,shipX5,shipY1,shipY2,shipY3,shipY4,shipY5;
-float enemySpeed=0.1,colorR=.9,colorG=0.0,colorB=0.9;
-bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,isWin=false,level_up_flag=false,mission_passed_flag=false;
+float colorR=.9,colorG=0.0,colorB=0.9;
+bool isMoveBullet=false,isMoveEnemy=true,isGameOver=false,level_up_flag=false,mission_passed_flag=false;
 int roundScore=0,currentLevelIndex;
 
 struct Ship{
@@ -37,11 +37,11 @@ struct Enemy{
 };
 Enemy enemy [101];
 
-struct PowerBall{
+struct PowerJelly{
     float x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8;
     bool isAlive=false;
 };
-PowerBall power_ball[11];
+PowerJelly power_ball[11];
 
 struct Level{
     int noOfEnemies,remainingEnemies;
@@ -64,6 +64,7 @@ void resetGame(){
     int modY=50;
     for(int i=0;i<10;i++){
         bullets[i].x=0.0;bullets[i].y=-scaleY-100;bullets[i].isAlive=false;
+        power_ball[i].isAlive=false;
     }
 
     for(int i=0;i<currentLevel.levelNo;i++){
@@ -78,10 +79,10 @@ void resetGame(){
         power_ball[i].x6=randX-20;power_ball[i].y6=randY-20;
         power_ball[i].x7=randX-12;power_ball[i].y7=randY;
         power_ball[i].x8=randX-20;power_ball[i].y8=randY+20;
-        power_ball[i].isAlive=true;
+        if(currentLevel.levelNo>1)power_ball[i].isAlive=true;
     }
 
-    cout<<currentLevel.noOfEnemies<<" : enemy || speed: "<<currentLevel.enemySpeed<<endl;
+    cout<<"enemy :"<<currentLevel.noOfEnemies<<" | enemy speed:"<<currentLevel.enemySpeed<<" |ship speed :"<<ship.speed<<endl;
     for(int i=0;i<currentLevel.noOfEnemies;i++){
             int randX= (rand() % 900)-450;
             int randY= (rand() % (modY*currentLevel.noOfEnemies))+600;
@@ -117,6 +118,8 @@ void levelUp(){
         mission_passed_flag=true;
         currentLevelIndex=0;
     }
+    ship.speed+=3;
+    if(ship.speed>30)ship.speed=30;
     currentLevel = levels[currentLevelIndex];
     currentLevel.remainingEnemies = currentLevel.noOfEnemies;
     currentLevel.levelNo = currentLevelIndex+1;
@@ -449,7 +452,7 @@ void updateScore(int score){
 }
 
 void updateBulletPower(){
-    currentLevel.jellyFishPower+=10;
+    currentLevel.jellyFishPower+=15;
     cout<<"update bullet power"<<endl;
 }
 
@@ -483,7 +486,7 @@ void vanishJellyFish(int id){
     power_ball[id].isAlive=false;
 }
 
-bool isCollisionShipWithPower(){
+bool isCollisionShipWithPowerJelly(){
     for(int i=0;i<currentLevel.levelNo;i++){
         if(!power_ball[i].isAlive)continue;
         float leftX=power_ball[i].x6,rightX=power_ball[i].x4;
@@ -509,7 +512,7 @@ void checkCollision(){
         deadText(1);
         return;
     }
-    if(isCollisionShipWithPower()){
+    if(isCollisionShipWithPowerJelly()){
         updateBulletPower();
     }
     /*
@@ -568,13 +571,13 @@ void initShipPosition(){
 
 void initLevels(){
     for(int i=0;i<10;i++){
-        levels[i].noOfEnemies=((i+1)*5);
-        levels[i].enemySpeed=i*.03+.15;
+        levels[i].noOfEnemies=((i+1)*10);
+        levels[i].enemySpeed=i*.015+.15;
         levels[i].levelNo=i+1;
-        levels[i].power_ball_speed=i*.05 +.3;
+        levels[i].power_ball_speed=i*.06 +.20;
     }
-    currentLevel.jellyFishPower=0;
     currentLevelIndex=0;
+    currentLevel.jellyFishPower=0;
     currentLevel = levels[currentLevelIndex];
     currentLevel.remainingEnemies = currentLevel.noOfEnemies;
 }
@@ -584,7 +587,7 @@ void init(void){
     glClearColor(0.1f, 0.0f, 0.1f, 0.0);
     glColor3f(0.0f, 0.0f, 0.0f);
     glOrtho(-scaleX, scaleX,-scaleY , scaleY, -1.0, 1.0);
-    centerX=0;centerY=-scaleY+20;
+    centerX=0;centerY=-scaleY+5;
     isGameOver=false;
     initShipPosition();
     initLevels();
