@@ -95,9 +95,11 @@ void resetGame(){
     }
     //isWin=false;
 }
+
 void levelUpText(){
+    // tanjila
     if(!level_up_flag)return;
-    glColor3f(colorR, colorG, colorB);
+    glColor3f(colorR, colorG, colorB);//0.1f, 0.0f, 0.1f,
     glRasterPos2f(-130,0);
     string str="LEVEL COMPLETE!!!";
     int len=str.length();
@@ -112,6 +114,7 @@ void levelUpText(){
 }
 
 void levelUp(){
+    // sazzad
     level_up_flag=true;
     currentLevelIndex++;
     if(currentLevelIndex>=10){
@@ -128,6 +131,7 @@ void levelUp(){
 }
 
 void printScore(int score){
+    //tanjila
     glColor3f(0.0, 1.0, 0.0);
     glRasterPos2f(scaleX-160,scaleY-50);
     stringstream strstrm,strstrm2,strm3;
@@ -142,6 +146,7 @@ void printScore(int score){
     for(int i=0;i<len;i++){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
+
     glRasterPos2f(-scaleX+10,scaleY-50);
     len=levelString.length();
     for(int i=0;i<len;i++){
@@ -157,6 +162,7 @@ void printScore(int score){
 }
 
 string getTopScore(){
+    //suronjit
     string file_score="";
     ifstream file_read ("C:/Users/Himon/Desktop/run/input.txt");
     if (file_read.is_open()){
@@ -168,18 +174,24 @@ string getTopScore(){
 }
 
 string getRoundScore(){
+    // suronjit
     string str="";
     int t_roundScore=roundScore;
+    if(t_roundScore==0){
+        str="0";
+    }
     while(t_roundScore){
         char dig=(t_roundScore%10)+'0';
         str=str+dig;
         t_roundScore/=10;
-    }
+    } //123=321 =123
+
     reverse(str.begin(),str.end());
     return str;
 }
 
 void printCompareScore(){
+    //suronjit
     glColor3f(0.0, 1.0, 0.0);
     glRasterPos2f(-120,250);
     string str="Your Score: "+getRoundScore();
@@ -198,6 +210,7 @@ void printCompareScore(){
 }
 
 void compareTopScore(){
+    //suronjit
     string file_score="";
     int top_score=0;
     ifstream file_read ("C:/Users/Himon/Desktop/run/input.txt");
@@ -205,7 +218,7 @@ void compareTopScore(){
         getline (file_read,file_score);
         file_read.close();
     }
-    int len=file_score.length();
+    int len=file_score.length(); // 123 // 321 // 12*10+3=123
     for(int i=len-1; i>=0; i--){
         top_score=top_score*10 + (file_score[i]-'0');
     }
@@ -226,6 +239,7 @@ void compareTopScore(){
 }
 
 void deadText(int flg=0){
+    // tanjila
     if(!flg)return;
     glColor3f (1.0, 0.0, 0.0);
     glRasterPos2f(-120,100);
@@ -236,7 +250,7 @@ void deadText(int flg=0){
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,str[i]);
     }
 
-    glRasterPos2f(-180,+50);
+    glRasterPos2f(-180,50);
     str="Restart ? PRESS R";
     len=str.length();
     for(int i=0;i<len;i++){
@@ -246,6 +260,7 @@ void deadText(int flg=0){
 }
 
 void missionPassed(){
+    //tanjila
     if(!mission_passed_flag)return;
     glColor3f (1.0, 0.0, 0.0);
     glRasterPos2f(-130,100);
@@ -363,6 +378,7 @@ void moveBullet(){
 }
 
 void loadBulletWithPower(){
+    //sazzad
     int cnt=3;
     for(int i=0;i<10&&cnt;i++){
         if(!bullets[i].isAlive){
@@ -414,6 +430,7 @@ void moveEnemy(){
 }
 
 void movePower(){
+    //jelly fish power movement
     if(mission_passed_flag)return;
     //cout<<"power ball"<<endl;
     for(int i=0;i<10;i++){
@@ -506,6 +523,7 @@ bool isCollisionShipWithPowerJelly(){
 }
 
 void checkCollision(){
+    //check collision bullet with enemy
     if(isCollisionShipWithEnemy()){
         isGameOver=true;
         glutIdleFunc(NULL);
@@ -570,6 +588,7 @@ void initShipPosition(){
 }
 
 void initLevels(){
+    // sazzad
     for(int i=0;i<10;i++){
         levels[i].noOfEnemies=((i+1)*10);
         levels[i].enemySpeed=i*.015+.15;
